@@ -1,4 +1,7 @@
-﻿@model UserManagement.Web.Models.Users.UserListViewModel
+﻿@using System.Linq.Expressions
+@using System.Reflection
+@using UserManagement.Web.Models.Users
+@model UserManagement.Web.Models.Users.UserListViewModel
 
 <h2>User List</h2>
 
@@ -54,11 +57,26 @@
 <div>
     <div class="btn-group" role="group">
         <a asp-controller="Users" asp-action="List" class="btn btn-default">Show All</a>
-        <a asp-controller="Users" asp-action="List" asp-all-route-data="@(new Dictionary<String, String>(){{"IsActive", "true"}})" class="btn btn-default">Active Only</a>
-        <a asp-controller="Users" asp-action="List" asp-all-route-data="@(new Dictionary<String, String>(){{"IsActive", "false"}})" class="btn btn-default">Non Active</a>
+        <a asp-controller="Users" asp-action="List" asp-all-route-data="@BuildFilter(user => user.IsActive, true)" class="btn btn-default">Active Only</a>
+        <a asp-controller="Users" asp-action="List" asp-all-route-data="@BuildFilter(user => user.IsActive, false)" class="btn btn-default">Non Active</a>
     </div>
 
     <a href="#" class="btn btn-primary float-end">
         Add User
     </a>
 </div>
+
+@functions {
+    private IDictionary<String, String> BuildFilter<TValue>(Expression<Func<UserListItemViewModel, TValue>> filterProp, TValue filterValue)
+    {
+        if (filterProp.Body is not MemberExpression { Member: PropertyInfo propertyExp } memberExp)
+        {
+            throw new ArgumentException("Expression must target a property on UserListItemViewModel", nameof(filterProp));
+        }
+
+        return new Dictionary<String, String>
+        {
+            { memberExp.Member.Name, filterValue?.ToString() ?? String.Empty }
+        };
+    }
+}
