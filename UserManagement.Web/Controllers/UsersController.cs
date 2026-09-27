@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
+using UserManagement.Services.Results;
 using UserManagement.Web.Models.Users;
 
 namespace UserManagement.WebMS.Controllers;
@@ -32,6 +34,44 @@ public class UsersController : Controller
         {
             Items = results.ToList()
         };
+
+        return View(model);
+    }
+
+    [HttpGet("add")]
+    public ViewResult Add() => View(new UserAddViewModel());
+
+    [HttpPost("add")]
+    [ValidateAntiForgeryToken]
+    public async Task<ActionResult> Add([FromForm] UserAddViewModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            User newUser = new()
+            {
+                Forename = model.Forename!,
+                Surname = model.Surname!,
+                Email = model.Email!,
+                DateOfBirth = model.DateOfBirth,
+                IsActive = model.IsActive
+            };
+
+            var result = _userService.Add(newUser);
+
+            switch (result)
+            {
+                case SuccessResult<User> success:
+                     return RedirectToAction(nameof(List));
+
+                case ErrorResult error:
+                    ModelState.AddModelError(String.Empty, error.ErrorMessage);
+                    break;
+
+                default:
+                    ModelState.AddModelError(string.Empty, "An unexpected error occurred.");
+                    break;
+            }
+        }
 
         return View(model);
     }

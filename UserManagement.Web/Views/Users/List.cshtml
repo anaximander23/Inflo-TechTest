@@ -65,9 +65,7 @@
         <a asp-controller="Users" asp-action="List" asp-all-route-data="@BuildFilter(user => user.IsActive, false)" class="btn btn-default">Non Active</a>
     </div>
 
-    <a href="#" class="btn btn-primary float-end">
-        Add User
-    </a>
+    <a asp-controller="Users" asp-action="Add" class="btn btn-primary float-end">Add User</a>
 </div>
 
 @functions {
