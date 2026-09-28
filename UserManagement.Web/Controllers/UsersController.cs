@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Services.Results;
+using UserManagement.Web.Models;
 using UserManagement.Web.Models.Users;
 
 namespace UserManagement.WebMS.Controllers;
@@ -39,11 +40,11 @@ public class UsersController : Controller
     }
 
     [HttpGet("add")]
-    public ViewResult Add() => View(new UserAddViewModel());
+    public ViewResult Add() => View(new UserEditViewModel());
 
     [HttpPost("add")]
     [ValidateAntiForgeryToken]
-    public async Task<ActionResult> Add([FromForm] UserAddViewModel model)
+    public async Task<ActionResult> Add([FromForm] UserEditViewModel model)
     {
         if (ModelState.IsValid)
         {
@@ -62,6 +63,70 @@ public class UsersController : Controller
             {
                 case SuccessResult<User> success:
                      return RedirectToAction(nameof(List));
+
+                case ErrorResult error:
+                    ModelState.AddModelError(String.Empty, error.ErrorMessage);
+                    break;
+
+                default:
+                    ModelState.AddModelError(string.Empty, "An unexpected error occurred.");
+                    break;
+            }
+        }
+
+        return View(model);
+    }
+
+    [HttpGet("{id}/edit")]
+    public ViewResult Edit([FromRoute] Int64 id)
+    {
+        var result = _userService.GetById(id);
+
+        switch (result)
+        {
+            case SuccessResult<User> success:
+
+                var model = new UserEditViewModel
+                {
+                    Id = success.Result.Id,
+                    Forename = success.Result.Forename,
+                    Surname = success.Result.Surname,
+                    Email = success.Result.Email,
+                    DateOfBirth = success.Result.DateOfBirth,
+                    IsActive = success.Result.IsActive
+                };
+                return View(model);
+
+            case ErrorResult error:
+                return View("Error", new ErrorDetailModel { Message = "Error", Details = error.ErrorMessage });
+
+            default:
+                return View("Error", new ErrorDetailModel { Message = "Error", Details = $"An unexpected error occurred." });
+        }
+    }
+
+    [HttpPost("{id}/edit")]
+    [ValidateAntiForgeryToken]
+    public async Task<ActionResult> Edit([FromRoute] Int64 id, [FromForm] UserEditViewModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            User user = new()
+            {
+                Id = id,
+                Forename = model.Forename!,
+                Surname = model.Surname!,
+                Email = model.Email!,
+                DateOfBirth = model.DateOfBirth,
+                IsActive = model.IsActive
+            };
+
+            var result = _userService.Edit(id, user);
+
+            switch (result)
+            {
+                case SuccessResult<User> success:
+                    return RedirectToAction(nameof(List));
 
                 case ErrorResult error:
                     ModelState.AddModelError(String.Empty, error.ErrorMessage);

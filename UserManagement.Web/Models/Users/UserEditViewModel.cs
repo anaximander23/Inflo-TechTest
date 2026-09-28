@@ -3,8 +3,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace UserManagement.Web.Models.Users;
 
-public class UserAddViewModel
+public record UserEditViewModel
 {
+    public Int64? Id { get; init; }
+
     [Required(ErrorMessage="Forename must be provided")]
     public String? Forename { get; set; }
     [Required(ErrorMessage="Surname must be provided")]

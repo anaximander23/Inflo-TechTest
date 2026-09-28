@@ -48,4 +48,43 @@ public class UserService : IUserService
         }
     }
 
+    public IOperationResult<User> GetById(Int64 id)
+    {
+        var user = _dataAccess.GetAll<User>()
+            .FirstOrDefault(u => u.Id == id);
+
+        if (user is null)
+        {
+            return new ErrorResult<User>("User not found");
+        }
+
+        return new SuccessResult<User>(user);
+    }
+
+    public IOperationResult<User> Edit(Int64 id, User model)
+    {
+        var userExists = _dataAccess.GetAll<User>()
+            .Any(u => u.Id == id);
+
+        // technically a TOCTOU race condition here -
+        // in a real application we'd use locking, concurrency tokens, or atomic find-and-update operations where available
+        // (depending on requirements regarding throughput and data consistency)
+        if (!userExists)
+        {
+            return new ErrorResult<User>("User not found");
+        }
+
+        try
+        {
+            //NB: safe for this model; may not be appropriate if there are properties that shouldn't be edited.
+            // Can also cause issues with navigation properties, depending on how they're mapped
+            _dataAccess.Update(model);
+
+            return new SuccessResult<User>(model);
+        }
+        catch (Exception ex)
+        {
+            return new ErrorResult<User>(ex, "Failed to edit user");
+        }
+    }
 }

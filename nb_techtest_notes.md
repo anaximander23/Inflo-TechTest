@@ -2,8 +2,11 @@
 
 ## Design & Implementation Details
 
+### Aliases cs CLR types
+An uncommon practice among C# developers, but I prefer to use type names over CLR aliases (eg. `Int32` vs. `int`, `String` vs. `string`) - it makes for consistent syntax highlighting and reduces confusion and cognitive overhead (for example, it's easier/more intuitive to remember that `Convert.ToInt64(...)` returns an `Int64`, rather than `long`). It's a small thing, but I've come to prefer it.
+
 ### IOperationResult
-Simple option type to allow methods to report failures without exceptions. Inspired by functional programming patterns.
+A simple option type to allow methods to report failures without exceptions. Inspired by functional programming patterns.
 I've built this a few ways over the years; this is one example but there are other shapes (this is perhaps to the more formalised/structured end of the spectrum). C# 15's new discriminated union types might be an interesting way to build a "result" option type, but I haven't tried it yet.
 
 Exceptions...
@@ -21,3 +24,7 @@ In the ASP.NET Core end of things, it allows the worker thread to go back and ac
 It also allows us to tie underlying operations to the HttpContext cancellation token, so we can cancel heavy work if the connection is closed (eg. the user navigates away, closes their browser, etc).
 Deeper into the application, it allows domain logic to do more work with fewer threads, and to run heavy database operations in parallel where possible.
 
+### The Data Access Layer
+The `IDataContext` interface is likely more of an impediment than a benefit. DbContext can be mocked for testing without needing the interface (and/or can be configured to use an in-memory database for testing), so the interface doesn't add anything, but it does hide useful EF features from the user service where they could help in querying (eg. access to the change tracker, controls like `.AsNoTracking()`, etc.). EF can be pointed at various different backing stores, and moving to something EF doesn't support would likely mean rewriting a chunk of the user service anyway - there's only so much you can hide the fact that your data lives in SQL before you lose the ability to make use of the features that made SQL a good choice, and likewise, trying to make the user service fit any given store equally means it fails to take advantage of the features of any of them.
+
+I'd probably remove the `IDataContext` interface and use `DbContext` directly. EF+LINQ is already enough of an abstraction over the mechanics of querying the database for most scenarios.

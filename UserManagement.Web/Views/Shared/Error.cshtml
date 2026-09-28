@@ -1,13 +1,31 @@
-﻿<!DOCTYPE html>
+﻿@using UserManagement.Web.Models
+@model ErrorDetailModel?
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
     <title>Error</title>
 </head>
 <body>
-    <hgroup>
-        <h1>Error.</h1>
-        <h2>An error occurred while processing your request.</h2>
-    </hgroup>
+
+    @if (Model is not null)
+    {
+        <hgroup>
+            <h1>@Model.Message</h1>
+            @if (Model.Details is not null)
+            {
+                <p>@Model.Details</p>
+            }
+        </hgroup>
+    }
+    else
+    {
+
+        <hgroup>
+            <h1>Error</h1>
+            <h2>An error occurred while processing your request.</h2>
+        </hgroup>
+    }
 </body>
 </html>
