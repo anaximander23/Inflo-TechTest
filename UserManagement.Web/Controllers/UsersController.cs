@@ -20,8 +20,8 @@ public class UsersController : Controller
     {
         IEnumerable<User> userRecords = isActive.HasValue ? _userService.FilterByActive(isActive.Value) : _userService.GetAll();
 
-        IEnumerable<UserListItemViewModel> results = userRecords
-            .Select(p => new UserListItemViewModel
+        IEnumerable<UserViewModel> results = userRecords
+            .Select(p => new UserViewModel
             {
                 Id = p.Id,
                 Forename = p.Forename,
@@ -37,6 +37,35 @@ public class UsersController : Controller
         };
 
         return View(model);
+    }
+
+    [HttpGet("{id}")]
+    public ViewResult Details([FromRoute] Int64 id)
+    {
+        var result = _userService.GetById(id);
+
+        switch (result)
+        {
+            case SuccessResult<User> success:
+
+                UserViewModel model = new()
+                {
+                    Id = success.Result.Id,
+                    Forename = success.Result.Forename,
+                    Surname = success.Result.Surname,
+                    DateOfBirth = success.Result.DateOfBirth,
+                    Email = success.Result.Email,
+                    IsActive = success.Result.IsActive
+                };
+
+                return View(model);
+
+            case ErrorResult error:
+                return View("Error", new ErrorDetailModel { Message = "Error", Details = error.ErrorMessage });
+
+            default:
+                return View("Error", new ErrorDetailModel { Message = "Error", Details = $"An unexpected error occurred." });
+        }
     }
 
     [HttpGet("add")]

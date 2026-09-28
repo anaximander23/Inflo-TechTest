@@ -46,7 +46,7 @@
                                 Actions
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="btnToggleActions">
-                                <li><a class="dropdown-item" href="#">View</a></li>
+                                <li><a asp-action="Details" asp-route-id="@item.Id" class="dropdown-item">View</a></li>
                                 <li><a asp-action="Edit" asp-route-id="@item.Id" class="dropdown-item">Edit</a></li>
                                 <li><a class="dropdown-item" href="#">Delete</a></li>
                             </ul>
@@ -69,7 +69,7 @@
 </div>
 
 @functions {
-    private IDictionary<String, String> BuildFilter<TValue>(Expression<Func<UserListItemViewModel, TValue>> filterProp, TValue filterValue)
+    private IDictionary<String, String> BuildFilter<TValue>(Expression<Func<UserViewModel, TValue>> filterProp, TValue filterValue)
     {
         if (filterProp.Body is not MemberExpression { Member: PropertyInfo propertyExp } memberExp)
         {
