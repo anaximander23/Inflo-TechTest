@@ -9,4 +9,6 @@ public sealed class AuthContext : IdentityDbContext<ApplicationUser, Application
 {
     protected override void OnConfiguring(DbContextOptionsBuilder options)
         => options.UseInMemoryDatabase("UserManagement.Data.AuthContext");
+
+    public DbSet<LogEntry> Logs { get; set; }
 }

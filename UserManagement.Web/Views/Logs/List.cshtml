@@ -1,0 +1,36 @@
+@model UserManagement.Web.Models.Logs.LogListViewModel
+
+<h2>Action Log</h2>
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Timestamp (UTC)</th>
+                <th>Action</th>
+                <th>Description</th>
+                <th>Actor</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="4" class="text-muted">No actions recorded yet.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>@item.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td>@item.Action</td>
+                        <td>@item.Description</td>
+                        <td>@(item.ActorEmail ?? "(anonymous)")</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

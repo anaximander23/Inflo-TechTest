@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddDataAccess()
     .AddDomainServices()
+    .AddCurrentUserAccessor()
     .AddDemoAuth()
     .AddMarkdown()
     .AddControllersWithViews();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UserManagement.Models;
 using UserManagement.Services.Results;
 
@@ -17,7 +18,7 @@ public interface IUserService
     IEnumerable<User> GetAll();
     IOperationResult<User> GetById(Int64 id);
 
-    IOperationResult<User> Add(User newUser);
-    IOperationResult<User> Edit(Int64 id, User model);
+    Task<IOperationResult<User>> Add(User newUser);
+    Task<IOperationResult<User>> Edit(Int64 id, User model);
 
 }

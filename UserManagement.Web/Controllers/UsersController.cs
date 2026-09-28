@@ -86,7 +86,7 @@ public class UsersController : Controller
                 IsActive = model.IsActive
             };
 
-            var result = _userService.Add(newUser);
+            var result = await _userService.Add(newUser);
 
             switch (result)
             {
@@ -150,7 +150,7 @@ public class UsersController : Controller
                 IsActive = model.IsActive
             };
 
-            var result = _userService.Edit(id, user);
+            var result = await _userService.Edit(id, user);
 
             switch (result)
             {

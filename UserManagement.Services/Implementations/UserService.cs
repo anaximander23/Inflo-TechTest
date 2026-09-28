@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UserManagement.Data;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
@@ -25,7 +26,20 @@ public class UserService : IUserService
 
     public IEnumerable<User> GetAll() => _dataAccess.GetAll<User>();
 
-    public IOperationResult<User> Add(User newUser)
+    public IOperationResult<User> GetById(Int64 id)
+    {
+        var user = _dataAccess.GetAll<User>()
+            .FirstOrDefault(u => u.Id == id);
+
+        if (user is null)
+        {
+            return new ErrorResult<User>("User not found");
+        }
+
+        return new SuccessResult<User>(user);
+    }
+
+    public async Task<IOperationResult<User>> Add(User newUser)
     {
         Boolean emailCollides = _dataAccess
             .GetAll<User>()
@@ -48,20 +62,7 @@ public class UserService : IUserService
         }
     }
 
-    public IOperationResult<User> GetById(Int64 id)
-    {
-        var user = _dataAccess.GetAll<User>()
-            .FirstOrDefault(u => u.Id == id);
-
-        if (user is null)
-        {
-            return new ErrorResult<User>("User not found");
-        }
-
-        return new SuccessResult<User>(user);
-    }
-
-    public IOperationResult<User> Edit(Int64 id, User model)
+    public async Task<IOperationResult<User>> Edit(Int64 id, User model)
     {
         var userExists = _dataAccess.GetAll<User>()
             .Any(u => u.Id == id);

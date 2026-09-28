@@ -1,7 +1,6 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using UserManagement.Data.Entities;
 using UserManagement.Web.Models.Accounts;
 
