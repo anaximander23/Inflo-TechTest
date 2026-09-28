@@ -1,0 +1,32 @@
+@model UserManagement.Web.Models.Accounts.LoginViewModel
+
+@{
+    ViewBag.Title = "Log in";
+}
+
+<h2>Log in</h2>
+
+<div class="row">
+    <div class="col-md-4">
+        <section>
+            <form id="loginForm" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" asp-for="Email" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" asp-for="Password" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="mb-3 form-check">
+                    <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe" asp-for="RememberMe" />
+                    <label class="form-check-label" for="rememberMe">Remember me</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Log in</button>
+            </form>
+        </section>
+    </div>
+</div>
