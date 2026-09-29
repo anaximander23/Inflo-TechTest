@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
@@ -10,6 +9,7 @@ using UserManagement.Web.Models.Users;
 namespace UserManagement.WebMS.Controllers;
 
 [Route("users")]
+[Authorize]
 public class UsersController : Controller
 {
     private readonly IUserService _userService;
@@ -68,10 +68,12 @@ public class UsersController : Controller
         }
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpGet("add")]
     public ViewResult Add() => View(new UserEditViewModel());
 
     [HttpPost("add")]
+    [Authorize(Roles = "Admin")]
     [ValidateAntiForgeryToken]
     public async Task<ActionResult> Add([FromForm] UserEditViewModel model)
     {
@@ -107,6 +109,7 @@ public class UsersController : Controller
     }
 
     [HttpGet("{id}/edit")]
+    [Authorize(Roles = "Admin")]
     public ViewResult Edit([FromRoute] Int64 id)
     {
         var result = _userService.GetById(id);
@@ -135,6 +138,7 @@ public class UsersController : Controller
     }
 
     [HttpPost("{id}/edit")]
+    [Authorize(Roles = "Admin")]
     [ValidateAntiForgeryToken]
     public async Task<ActionResult> Edit([FromRoute] Int64 id, [FromForm] UserEditViewModel model)
     {

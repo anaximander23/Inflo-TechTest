@@ -5,6 +5,7 @@ using UserManagement.Web.Models.Logs;
 namespace UserManagement.WebMS.Controllers;
 
 [Route("logs")]
+[Authorize]
 public class LogsController : Controller
 {
     private readonly ILogService _logService;
@@ -14,14 +15,16 @@ public class LogsController : Controller
     [HttpGet]
     public ViewResult List()
     {
+        DateTime now = DateTime.Now;
+
         var items = _logService
-            .GetAll()
+            .Get(now.Subtract(TimeSpan.FromDays(1)), now)
             .OrderByDescending(e => e.Timestamp)
             .Select(e => new LogEntryViewModel
             {
                 Action = e.Action,
                 Description = e.Description,
-                ActorEmail = e.User.Email,
+                ActorEmail = e.User == null ? null : e.User.Email,
                 Timestamp = e.Timestamp
             })
             .ToList();

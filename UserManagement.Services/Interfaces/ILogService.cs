@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using UserManagement.Data.Entities;
 
@@ -7,5 +8,5 @@ public interface ILogService
 {
     void Log(string action, string description, ApplicationUser actor);
 
-    IQueryable<LogEntry> GetAll();
+    IQueryable<LogEntry> Get(DateTime startTime, DateTime? endTime = null);
 }

@@ -28,5 +28,22 @@ public sealed class LogService : ILogService
         _dataContext.SaveChanges();
     }
 
-    public IQueryable<LogEntry> GetAll() => _dataContext.Set<LogEntry>().AsNoTracking();
+    public IQueryable<LogEntry> GetAll()
+    {
+        return _dataContext.Set<LogEntry>().AsNoTracking();
+    }
+
+    public IQueryable<LogEntry> Get(DateTime startTime, DateTime? endTime = null)
+    {
+        var results = _dataContext
+            .Set<LogEntry>()
+            .Where(x => x.Timestamp >= startTime);
+
+        if (endTime.HasValue)
+        {
+            results = results.Where(x => x.Timestamp < endTime);
+        }
+
+        return results.AsNoTracking();
+    }
 }

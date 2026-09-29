@@ -1,5 +1,3 @@
-using System;
-
 namespace UserManagement.Web.Models.Logs;
 
 public class LogEntryViewModel

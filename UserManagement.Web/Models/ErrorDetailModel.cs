@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace UserManagement.Web.Models;
+﻿namespace UserManagement.Web.Models;
 
 public record ErrorDetailModel
 {

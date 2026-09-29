@@ -19,6 +19,8 @@ public static class ServiceCollectionExtensions
             .AddRoles<ApplicationRole>()
             .AddEntityFrameworkStores<AuthContext>();
 
+        services.ConfigureApplicationCookie(options => options.LoginPath = "/Account/Login");
+
         return services;
     }
 

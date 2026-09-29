@@ -47,7 +47,10 @@
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="btnToggleActions">
                                 <li><a asp-action="Details" asp-route-id="@item.Id" class="dropdown-item">View</a></li>
+@if (User.IsInRole("Admin"))
+{
                                 <li><a asp-action="Edit" asp-route-id="@item.Id" class="dropdown-item">Edit</a></li>
+}
                                 <li><a class="dropdown-item" href="#">Delete</a></li>
                             </ul>
                         </div>
@@ -65,7 +68,10 @@
         <a asp-controller="Users" asp-action="List" asp-all-route-data="@BuildFilter(user => user.IsActive, false)" class="btn btn-default">Non Active</a>
     </div>
 
+@if (User.IsInRole("Admin"))
+{
     <a asp-controller="Users" asp-action="Add" class="btn btn-primary float-end">Add User</a>
+}
 </div>
 
 @functions {

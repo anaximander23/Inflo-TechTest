@@ -13,7 +13,8 @@ public record LogEntry
 
     public required String Action { get; init;  }
 
-    public required ApplicationUser User { get; init;  }
+    public Int64? UserId { get; init; }
+    public ApplicationUser? User { get; init; }
 
     public DateTime Timestamp { get; init; }
 }
