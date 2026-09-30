@@ -1,9 +1,13 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using UserManagement.Data.Entities;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
+using UserManagement.Services.Interfaces;
 using UserManagement.Services.Results;
+using UserManagement.Web.Extensions;
 using UserManagement.Web.Models;
+using UserManagement.Web.Models.Logs;
 using UserManagement.Web.Models.Users;
 
 namespace UserManagement.WebMS.Controllers;
@@ -12,8 +16,16 @@ namespace UserManagement.WebMS.Controllers;
 [Authorize]
 public class UsersController : Controller
 {
+    private const Int32 PageSize = 10;
+
     private readonly IUserService _userService;
-    public UsersController(IUserService userService) => _userService = userService;
+    private readonly ILogService _logService;
+
+    public UsersController(IUserService userService, ILogService logService)
+    {
+        _userService = userService;
+        _logService = logService;
+    }
 
     [HttpGet]
     public ViewResult List([FromQuery]Boolean? isActive = null)
@@ -40,7 +52,7 @@ public class UsersController : Controller
     }
 
     [HttpGet("{id}")]
-    public ViewResult Details([FromRoute] Int64 id)
+    public ViewResult Details([FromRoute] Int64 id, DateTime? before = null, DateTime? after = null)
     {
         var result = _userService.GetById(id);
 
@@ -55,7 +67,8 @@ public class UsersController : Controller
                     Surname = success.Result.Surname,
                     DateOfBirth = success.Result.DateOfBirth,
                     Email = success.Result.Email,
-                    IsActive = success.Result.IsActive
+                    IsActive = success.Result.IsActive,
+                    ActivityLogs = BuildActivityLogs(id, before, after)
                 };
 
                 return View(model);
@@ -172,5 +185,43 @@ public class UsersController : Controller
         }
 
         return View(model);
+    }
+
+    private LogListViewModel BuildActivityLogs(Int64 id, DateTime? before, DateTime? after)
+    {
+        LogTarget target = new(LogTargets.User, id);
+
+        IEnumerable<LogEntry> results;
+
+        switch (before, after)
+        {
+            case (not null, null):
+                results = _logService.GetBeforeForTarget(target, before.Value.AsUtc(), PageSize);
+                break;
+
+            case (null, not null):
+                results = _logService.GetAfterForTarget(target, after.Value.AsUtc(), PageSize);
+                break;
+
+            default:
+                results = _logService.GetBeforeForTarget(target, DateTime.UtcNow, PageSize);
+                break;
+        }
+
+        return new LogListViewModel
+        {
+            Items = results
+                .OrderByDescending(x => x.Timestamp)
+                .Select(x => new LogEntryViewModel
+                {
+                    Action = x.Action,
+                    Description = x.Description,
+                    ActorEmail = x.User == null ? null : x.User.Email,
+                    Timestamp = x.Timestamp
+                })
+                .ToList(),
+            PagingAction = nameof(Details),
+            RouteId = id
+        };
     }
 }

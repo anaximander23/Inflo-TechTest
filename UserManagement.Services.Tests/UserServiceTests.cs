@@ -1,5 +1,6 @@
 using System;
-using System.Linq;
+using Microsoft.EntityFrameworkCore;
+using UserManagement.Data;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Implementations;
 
@@ -12,36 +13,37 @@ public class UserServiceTests
     {
         // Arrange: Initializes objects and sets the value of the data that is passed to the method under test.
         var service = CreateService();
-        var users = SetupUsers();
+        var user = SetupUsers();
 
         // Act: Invokes the method under test with the arranged parameters.
         var result = service.GetAll();
 
         // Assert: Verifies that the action of the method under test behaves as expected.
-        result.Should().BeSameAs(users);
+        result
+            .Should().Contain(s => s.Email == user.Email)
+            .Which.Should().BeEquivalentTo(user);
     }
 
-    private IQueryable<User> SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
+    private User SetupUsers(string forename = "Johnny", string surname = "User", string email = "juser@example.com", bool isActive = true)
     {
-        var users = new[]
+        var user = new User
         {
-            new User
-            {
-                Forename = forename,
-                Surname = surname,
-                Email = email,
-                DateOfBirth = new DateOnly(2007, 10, 20),
-                IsActive = isActive
-            }
-        }.AsQueryable();
+            Forename = forename,
+            Surname = surname,
+            Email = email,
+            DateOfBirth = new DateOnly(2007, 10, 20),
+            IsActive = isActive
+        };
 
-        _dataContext
-            .Setup(s => s.GetAll<User>())
-            .Returns(users);
+        _dataContext.Create(user);
 
-        return users;
+        return user;
     }
 
-    private readonly Mock<IDataContext> _dataContext = new();
-    private UserService CreateService() => new(_dataContext.Object);
+    private readonly DataContext _dataContext = new(
+        new DbContextOptionsBuilder<DataContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options);
+
+    private UserService CreateService() => new(_dataContext);
 }

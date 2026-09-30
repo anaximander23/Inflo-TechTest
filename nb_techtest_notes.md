@@ -2,6 +2,9 @@
 
 ## Design & Implementation Details
 
+### Framework/SDK version
+I've used a few C# 14 features (eg. extension members in the new syntax) so this will need .NET 10, not .NET 9. Updating the target frameworks is an outstanding task that should come with updating the NuGet packages and accomodating any API changes they bring with them.
+
 ### Aliases cs CLR types
 An uncommon practice among C# developers, but I prefer to use type names over CLR aliases (eg. `Int32` vs. `int`, `String` vs. `string`) - it makes for consistent syntax highlighting and reduces confusion and cognitive overhead (for example, it's easier/more intuitive to remember that `Convert.ToInt64(...)` returns an `Int64`, rather than `long`). It's a small thing, but I've come to prefer it.
 
@@ -29,6 +32,9 @@ The `IDataContext` interface is likely more of an impediment than a benefit. DbC
 
 I'd probably remove the `IDataContext` interface and use `DbContext` directly. EF+LINQ is already enough of an abstraction over the mechanics of querying the database for most scenarios.
 
+### Log handling
+I'm paging logs by time, not ID. This is probably more natural for logs; it does mean you'll see some reshuffling in eventual-consistency scenarios where logs might arrive delayed or out of order and you're viewing a timeframe that hasn't settled, but it means you always see the most honest view we have of the time window. In other scenarios you might want to use concurrency tokens or cursors to show a frozen snapshot of the list precisely to avoid this reshuffling, especially in contexts where the user is editing what's in the list rather than just viewing (and then you'd update their snapshot when they save their edits, ask to refresh, etc). Either way, the pattern here is `.Where(x => x.Sequence > marker).Take(pageSize)` where `.Sequence` is any property on the object that is orderable and `marker` is the last value they saw (obviously, for going back a page you'd use `x.Sequence < marker)` where `marker` is the first value in the last batch they saw). This is more efficient than the common `.Skip(pageIndex * pageSize).Take(pageSize)` because it avoids scanning through `pageIndex * pageSize` records first. If you're looking at a log table on a high-traffic system and you're digging back through the logs to investigate an incident from a couple of weeks ago, this could save you millions of rows of scanning. Your SQL database will thank you, and so will any users who are bothered by slow pageloads.
+
 ### Auth
 Using ASP.NET Core Identity for the demo - super simple to set up, but absolutely sufficient for a smallish project like an in-house management dashboard, provided the datastore where accounts and passwords are kept is secured appropriately (or you delegate out to something else - likely an OAuth or similar SSO provider, to tie it to organisational accounts your users already have).
 For public-facing applications, I'd recommend making auth Someone Else's Problem as much as possible. Far too many subtle ways to get it wrong, loads of support overhead in things like password resets and monitoring, and potentially huge impact if you get any of it even slightly wrong. Find someone whose whole business model is in doing auth properly, and use their product (Microsoft Entra ID, Auth0, Google Identity Platform, etc).
@@ -40,3 +46,5 @@ This app was MVC; I kept to that for the main pages, but used Razor for the logi
 
 One change that can be very beneficial but I would wait until we definitely needed it before implementing - Blazor WASM using pure APIs underneath means you automatically get a set of HTTP APIs that you can also use to power other apps - webapps, mobile apps, etc. These are also useful if you're leaning into AI, as an AI agent can call API endpoints quite easily (especially with a little help from an MCP or other tooling support).
 
+### Deployment
+My preferred method for deployment would be to add a Dockerfile to this repo and configure the CI to push version-tagged containers to the repo (tagging the git commits with matching version numbers for non-prerelease versions). Then add Helm charts and a Terraform config to deploy into your chosen infrastructure - I've done this with a few platforms in the past; Azure is probably the one I know best, so that'd be AKS with the appropriate Virtual Network setup. Done right, this deploys your infrastructure itself as well as deploying the apps into it; for this reason it's common to have the Helm and Terraform parts live in a separate repository. The app repo then has published Docker container images as its final artifact, and the Terraform repo is a single centralised place to control the versions of everything in your estate. If this adds friction or becomes too much overhead, something like ArgoCD can be employed to streamline it and manage those app versions automatically for more continuous deployment.

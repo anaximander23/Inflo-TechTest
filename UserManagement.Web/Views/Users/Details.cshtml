@@ -39,19 +39,43 @@
 
 @if (User.IsInRole("Admin"))
 {
-    <hr />
-    <div class="table-responsive">
-        <h3>Activity logs</h3>
-        <table class="table table-striped">
-            <thead>
+<hr />
+<h3>Activity logs</h3>
+
+<partial name="_LogPager" model="Model.ActivityLogs" />
+
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Action</th>
+                <th>Description</th>
+                <th>Actor</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.ActivityLogs.Items.Count == 0)
+            {
                 <tr>
-                    <th>Time</th>
-                    <th>Action</th>
-                    <th></th>
+                    <td colspan="4" class="text-muted">No actions recorded for this user.</td>
                 </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
+            }
+            else
+            {
+                @foreach (var log in Model.ActivityLogs.Items)
+                {
+                    <tr>
+                        <td>@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                        <td>@log.Action</td>
+                        <td>@log.Description</td>
+                        <td>@(log.ActorEmail ?? "(unknown)")</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<partial name="_LogPager" model="Model.ActivityLogs" />
 }

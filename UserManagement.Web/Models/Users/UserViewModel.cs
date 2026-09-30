@@ -1,4 +1,7 @@
-﻿namespace UserManagement.Web.Models.Users;
+using System.Collections.Generic;
+using UserManagement.Web.Models.Logs;
+
+namespace UserManagement.Web.Models.Users;
 
 public class UserViewModel
 {
@@ -12,4 +15,6 @@ public class UserViewModel
     public string? Email { get; set; }
 
     public bool IsActive { get; set; }
+
+    public LogListViewModel ActivityLogs { get; set; } = new();
 }

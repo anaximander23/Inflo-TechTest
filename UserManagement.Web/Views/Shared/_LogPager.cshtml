@@ -1,0 +1,21 @@
+@model UserManagement.Web.Models.Logs.LogListViewModel
+@using System.Linq
+
+@{
+    var items = Model.Items;
+    var idValue = Model.RouteId?.ToString();
+}
+
+<nav class="d-flex justify-content-between">
+    @if (items.Count > 0)
+    {
+        <a class="btn btn-primary" asp-action="@Model.PagingAction" asp-route-id="@idValue"
+           asp-route-after="@(items.Max(x => x.Timestamp).ToString("o"))">Newer</a>
+    }
+    <a class="btn btn-secondary" asp-action="@Model.PagingAction" asp-route-id="@idValue">Newest</a>
+    @if (items.Count > 0)
+    {
+        <a class="btn btn-primary" asp-action="@Model.PagingAction" asp-route-id="@idValue"
+           asp-route-before="@(items.Min(x => x.Timestamp).ToString("o"))">Older</a>
+    }
+</nav>

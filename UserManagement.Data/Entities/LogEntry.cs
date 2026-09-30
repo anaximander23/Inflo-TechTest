@@ -16,5 +16,9 @@ public record LogEntry
     public Int64? UserId { get; init; }
     public ApplicationUser? User { get; init; }
 
+    public String? TargetType { get; init; }
+    public Int64? TargetId { get; init; }
+    public String? TargetLabel { get; init; }
+
     public DateTime Timestamp { get; init; }
 }

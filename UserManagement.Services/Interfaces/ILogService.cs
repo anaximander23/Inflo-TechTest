@@ -6,7 +6,13 @@ namespace UserManagement.Services.Interfaces;
 
 public interface ILogService
 {
-    void Log(string action, string description, ApplicationUser actor);
+    void Log(String action, String description, ApplicationUser actor, LogTarget? target = null);
 
-    IQueryable<LogEntry> Get(DateTime startTime, DateTime? endTime = null);
+    IQueryable<LogEntry> GetBefore(DateTime time, Int32 count);
+
+    IQueryable<LogEntry> GetAfter(DateTime time, Int32 count);
+
+    IQueryable<LogEntry> GetBeforeForTarget(LogTarget target, DateTime time, Int32 count);
+
+    IQueryable<LogEntry> GetAfterForTarget(LogTarget target, DateTime time, Int32 count);
 }

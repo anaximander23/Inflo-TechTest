@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using UserManagement.Data.Entities;
 using UserManagement.Models;
 using UserManagement.Services.Domain.Interfaces;
 using UserManagement.Services.Interfaces;
@@ -36,9 +37,13 @@ public sealed class UserServiceLogger : IUserService
 
         var result = await _inner.Add(newUser);
 
-        if (result.IsSuccess)
+        if (result is SuccessResult<User> success)
         {
-            _log.Log("Added user", $"User {newUser.Email} added", actor);
+            _log.Log(
+                "Added user",
+                $"User {success.Result.Email} added",
+                actor,
+                new LogTarget(LogTargets.User, success.Result.Id, success.Result.Email));
         }
 
         return result;
@@ -54,9 +59,13 @@ public sealed class UserServiceLogger : IUserService
 
         var result = await _inner.Edit(id, model);
 
-        if (result.IsSuccess)
+        if (result is SuccessResult<User> success)
         {
-            _log.Log("Edited user", $"User {id} edited", actor);
+            _log.Log(
+                "Edited user",
+                $"User {id} edited",
+                actor,
+                new LogTarget(LogTargets.User, id, success.Result.Email));
         }
 
         return result;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,18 +11,12 @@ namespace UserManagement.Services.Domain.Implementations;
 
 public class UserService : IUserService
 {
-    private readonly IDataContext _dataAccess;
-    public UserService(IDataContext dataAccess) => _dataAccess = dataAccess;
+    private readonly DataContext _dataAccess;
 
-        /// <summary>
-    /// Return users by active state
-    /// </summary>
-    /// <param name="isActive"></param>
-    /// <returns></returns>
+    public UserService(DataContext dataAccess) => _dataAccess = dataAccess;
+
     public IEnumerable<User> FilterByActive(bool isActive)
-    {
-        return GetAll().Where(u => u.IsActive == isActive);
-    }
+        => GetAll().Where(u => u.IsActive == isActive);
 
     public IEnumerable<User> GetAll() => _dataAccess.GetAll<User>();
 
